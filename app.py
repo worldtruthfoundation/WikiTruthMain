@@ -71,14 +71,18 @@ def api_search():
 def article_selection(language, title):
     """Language selection page for a specific article"""
     try:
+        # Decode URL-encoded title
+        from urllib.parse import unquote
+        decoded_title = unquote(title)
+        
         # Get article info
-        article_info = wiki_api.get_article_info(title, language)
+        article_info = wiki_api.get_article_info(decoded_title, language)
         if not article_info:
             flash('Article not found.', 'error')
             return redirect(url_for('index'))
         
         # Get available language versions
-        language_versions = wiki_api.get_language_links(title, language)
+        language_versions = wiki_api.get_language_links(decoded_title, language)
         
         # Get supported output languages
         output_languages = wiki_api.get_supported_languages()
@@ -119,7 +123,8 @@ def compare_articles():
         if '/article/' in referer:
             parts = referer.split('/article/')[1].split('/')
             base_language = parts[0]
-            article_title = '/'.join(parts[1:])
+            from urllib.parse import unquote
+            article_title = unquote('/'.join(parts[1:]))
         else:
             flash('Invalid article reference.', 'error')
             return redirect(url_for('index'))

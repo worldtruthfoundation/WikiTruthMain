@@ -195,15 +195,7 @@ class WikipediaAPI:
     def get_article_content(self, title, language='en'):
         """Get full article content"""
         try:
-            url = self.base_url.format(lang=language) + f"/page/summary/{quote(title)}"
-            
-            response = self.session.get(url, timeout=30)
-            response.raise_for_status()
-            
-            data = response.json()
-            extract = data.get('extract', '')
-            
-            # Also get the full content
+            # Use only the action=query API to avoid URL encoding issues
             api_url = self.api_url.format(lang=language)
             params = {
                 'action': 'query',
@@ -214,18 +206,19 @@ class WikipediaAPI:
                 'exsectionformat': 'plain'
             }
             
-            full_response = self.session.get(api_url, params=params, timeout=30)
-            full_response.raise_for_status()
+            response = self.session.get(api_url, params=params, timeout=30)
+            response.raise_for_status()
             
-            full_data = full_response.json()
-            pages = full_data.get('query', {}).get('pages', {})
+            data = response.json()
+            pages = data.get('query', {}).get('pages', {})
             
             for page_id, page in pages.items():
                 if page_id != '-1':
-                    full_content = page.get('extract', '')
-                    return full_content if full_content else extract
+                    content = page.get('extract', '')
+                    if content:
+                        return content
             
-            return extract
+            return None
         
         except Exception as e:
             logging.error(f"Error getting article content for {title} in {language}: {e}")
