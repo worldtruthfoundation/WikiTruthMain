@@ -1,0 +1,657 @@
+/* Wikipedia-style CSS for Wiki Truth */
+
+/* CSS Custom Properties */
+:root {
+    --background: 210 11% 98%; /* #F5F7FA */
+    --foreground: 222 84% 5%; /* #0A0A0A */
+    --primary: 213 94% 33%; /* #0645AD */
+    --primary-hover: 213 84% 28%; /* #054080 */
+    --secondary: 210 10% 23%; /* #333 */
+    --muted: 210 10% 71%; /* #999 */
+    --border: 214 32% 91%; /* #DDD */
+    --input: 0 0% 100%; /* #FFFFFF */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --radius: 4px;
+}
+
+/* Base styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Lato, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+/* Wikipedia Header */
+.wikipedia-header {
+    background-color: hsl(var(--card));
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.header-top {
+    background-color: hsl(210 10% 96%); /* #F6F6F6 */
+    border-bottom: 1px solid hsl(var(--border));
+    padding: 5px 0;
+}
+
+.header-main {
+    padding: 15px 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-links a, .user-links {
+    color: hsl(var(--primary));
+    text-decoration: none;
+    font-size: 11px;
+}
+
+.header-links a:hover {
+    text-decoration: underline;
+}
+
+.wikipedia-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: hsl(var(--foreground));
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' fill='%230645ad'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Wikipedia Navigation */
+.wikipedia-nav {
+    background-color: hsl(var(--card));
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.nav-tabs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.nav-tab {
+    margin-right: 1px;
+}
+
+.nav-tab a {
+    display: block;
+    padding: 8px 16px;
+    color: hsl(var(--primary));
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background-color: hsl(210 10% 98%); /* #FAFAFA */
+    font-size: 13px;
+}
+
+.nav-tab.active a {
+    background-color: hsl(var(--card));
+    border-color: hsl(var(--border));
+    border-bottom: 1px solid hsl(var(--card));
+    margin-bottom: -1px;
+    color: hsl(var(--foreground));
+}
+
+.nav-tab a:hover {
+    text-decoration: underline;
+}
+
+/* Main Content Layout */
+.wikipedia-content {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.main-content {
+    background-color: hsl(var(--card));
+    padding: 20px;
+    border: 1px solid hsl(var(--border));
+    min-height: 500px;
+}
+
+.sidebar {
+    font-size: 12px;
+}
+
+.sidebar-section {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.sidebar-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: hsl(var(--secondary));
+    border-bottom: 1px solid hsl(var(--border));
+    padding-bottom: 5px;
+}
+
+.sidebar-section a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+}
+
+.sidebar-section a:hover {
+    text-decoration: underline;
+}
+
+/* Typography */
+h1 {
+    font-size: 28px;
+    font-weight: normal;
+    margin: 0 0 20px 0;
+    color: hsl(var(--foreground));
+    border-bottom: 3px solid hsl(var(--border));
+    padding-bottom: 5px;
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: normal;
+    margin: 25px 0 15px 0;
+    color: hsl(var(--foreground));
+    border-bottom: 1px solid hsl(var(--border));
+    padding-bottom: 3px;
+}
+
+h3 {
+    font-size: 16px;
+    margin: 20px 0 10px 0;
+    color: hsl(var(--secondary));
+}
+
+p {
+    margin: 15px 0;
+    line-height: 1.6;
+}
+
+a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:visited {
+    color: hsl(213 84% 28%); /* #054080 */
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: hsl(var(--secondary));
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    font-size: 14px;
+    background-color: hsl(var(--input));
+    color: hsl(var(--foreground));
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 5px hsla(var(--primary) / 0.3);
+}
+
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 5px 5px 0;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    background-color: hsl(210 10% 98%); /* #FAFAFA */
+    color: hsl(var(--secondary));
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background-color: hsl(210 10% 95%); /* #F0F0F0 */
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: hsl(var(--primary));
+    color: white;
+    border-color: hsl(var(--primary));
+}
+
+.btn-primary:hover {
+    background-color: hsl(var(--primary-hover));
+    border-color: hsl(var(--primary-hover));
+}
+
+.btn-secondary {
+    background-color: hsl(var(--card));
+    color: hsl(var(--secondary));
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Search functionality */
+.search-form {
+    margin: 20px 0;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-top: none;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.search-suggestion {
+    padding: 10px 12px;
+    border-bottom: 1px solid hsl(var(--border));
+    cursor: pointer;
+    color: hsl(var(--foreground));
+}
+
+.search-suggestion:hover {
+    background-color: hsl(210 10% 98%); /* #FAFAFA */
+}
+
+.search-suggestion:last-child {
+    border-bottom: none;
+}
+
+.suggestion-title {
+    font-weight: bold;
+    color: hsl(var(--primary));
+}
+
+.suggestion-description {
+    font-size: 12px;
+    color: hsl(var(--muted));
+    margin-top: 3px;
+}
+
+/* Language Selection */
+.language-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.language-option {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    cursor: pointer;
+    background-color: hsl(var(--card));
+    transition: all 0.2s;
+}
+
+.language-option:hover {
+    background-color: hsl(210 10% 98%); /* #FAFAFA */
+    border-color: hsl(var(--primary));
+}
+
+.language-option input[type="checkbox"] {
+    margin-right: 10px;
+    accent-color: hsl(var(--primary));
+}
+
+.language-option input[type="checkbox"]:checked + div {
+    color: hsl(var(--primary));
+}
+
+.language-name {
+    font-weight: bold;
+}
+
+.language-code {
+    color: hsl(var(--muted));
+    margin-left: 5px;
+}
+
+/* Article Info */
+.article-info {
+    background-color: hsl(210 10% 98%); /* #FAFAFA */
+    border: 1px solid hsl(var(--border));
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: var(--radius);
+}
+
+.article-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: hsl(var(--primary));
+    margin-bottom: 10px;
+}
+
+.article-extract {
+    color: hsl(var(--secondary));
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.article-url a {
+    color: hsl(var(--primary));
+    font-size: 13px;
+}
+
+/* Comparison Result */
+.comparison-result {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    padding: 25px;
+    margin: 20px 0;
+    line-height: 1.8;
+    font-size: 15px;
+}
+
+.comparison-result h3 {
+    color: hsl(var(--primary));
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+.comparison-result strong {
+    color: hsl(var(--secondary));
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Share Buttons */
+.share-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.btn-share {
+    padding: 8px 12px;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    background-color: hsl(var(--card));
+    color: hsl(var(--secondary));
+    text-decoration: none;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-share:hover {
+    background-color: hsl(210 10% 95%); /* #F0F0F0 */
+}
+
+/* Loading Page */
+.loading-page {
+    background-color: hsl(210 10% 98%); /* #FAFAFA */
+}
+
+.loading-container {
+    text-align: center;
+    padding: 60px 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid hsl(var(--border));
+    border-top: 4px solid hsl(var(--primary));
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 30px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: hsl(var(--primary));
+    margin-bottom: 30px;
+}
+
+.loading-details {
+    color: hsl(var(--secondary));
+    line-height: 1.6;
+}
+
+.loading-details ul {
+    list-style: none;
+    padding: 0;
+}
+
+.loading-details li {
+    margin: 8px 0;
+    position: relative;
+    padding-left: 20px;
+}
+
+.loading-details li:before {
+    content: "•";
+    color: hsl(var(--primary));
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+/* Alerts */
+.alert {
+    padding: 15px;
+    margin: 20px 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+}
+
+.alert-info {
+    color: hsl(213 84% 28%); /* #054080 */
+    background-color: hsl(213 100% 97%); /* #E6F3FF */
+    border-color: hsl(213 94% 85%); /* #B3D9FF */
+}
+
+.alert-error {
+    color: hsl(0 84% 28%); /* #800505 */
+    background-color: hsl(0 100% 97%); /* #FFE6E6 */
+    border-color: hsl(0 94% 85%); /* #FFB3B3 */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wikipedia-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        order: -1;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .language-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .share-buttons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+    
+    h2 {
+        font-size: 18px;
+    }
+    
+    .btn {
+        width: 100%;
+        margin: 5px 0;
+        text-align: center;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+
+/* Feature Cards */
+.feature-card {
+    border-radius: var(--radius);
+    transition: all 0.2s;
+}
+
+.feature-card:hover {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 2px 8px hsla(var(--primary) / 0.1);
+}
+
+/* Mode Selection */
+.mode-btn {
+    position: relative;
+}
+
+.mode-btn.active {
+    background-color: hsl(var(--primary));
+    color: white;
+    border-color: hsl(var(--primary));
+}
+
+/* Tooltips */
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: hsl(var(--secondary));
+    color: white;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    white-space: nowrap;
+    font-size: 12px;
+    z-index: 100;
+    margin-bottom: 5px;
+}
+
+/* Smooth transitions */
+* {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Print styles */
+@media print {
+    .wikipedia-header,
+    .wikipedia-nav,
+    .sidebar,
+    .action-buttons,
+    .share-buttons {
+        display: none;
+    }
+    
+    .wikipedia-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .main-content {
+        border: none;
+        padding: 0;
+    }
+}

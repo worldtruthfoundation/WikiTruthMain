@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Comparing Articles - Wiki Truth{% endblock %}
+
+{% block body_class %}class="loading-page"{% endblock %}
+
+{% block content %}
+<div class="loading-container">
+    <div class="loading-spinner"></div>
+    
+    <div class="loading-text">Comparing Wikipedia Articles...</div>
+    
+    <div class="loading-details">
+        <p><strong>Please wait while we analyze your selected articles.</strong></p>
+        
+        <p>Our AI is currently:</p>
+        <ul style="text-align: left; display: inline-block; margin: 20px auto;">
+            <li>Fetching article content from Wikipedia APIs</li>
+            <li>Processing text across multiple languages</li>
+            <li>Analyzing differences and similarities with GPT-4</li>
+            <li>Generating your comprehensive comparison</li>
+        </ul>
+        
+        <p style="margin-top: 20px;">
+            <strong>This process typically takes 1-2 minutes.</strong><br>
+            <span style="font-size: 13px; color: #999;">
+                Please don't close this window or navigate away.
+            </span>
+        </p>
+        
+        <div style="margin-top: 30px; padding: 15px; background-color: #e6f3ff; border: 1px solid #b3d9ff; border-radius: 4px;">
+            <h3 style="margin-top: 0; font-size: 16px; color: #0645ad;">Did You Know?</h3>
+            <p style="margin-bottom: 0; font-size: 14px; color: #333; line-height: 1.5;">
+                Wikipedia has over 300 language editions with more than 60 million articles combined. 
+                The same topic can be presented very differently across cultures - that's exactly 
+                what Wiki Truth helps you discover!
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+    <div class="sidebar-section">
+        <h3>Processing Status</h3>
+        <div style="font-size: 12px; color: #666;">
+            <div style="margin-bottom: 5px;">✓ Articles selected</div>
+            <div style="margin-bottom: 5px;">⏳ Fetching content...</div>
+            <div style="margin-bottom: 5px;">⏳ Analyzing differences...</div>
+            <div style="margin-bottom: 5px;">⏳ Generating report...</div>
+        </div>
+    </div>
+
+    <div class="sidebar-section" style="margin-top: 20px;">
+        <h3>Fun Facts</h3>
+        <div style="font-size: 12px; color: #666; line-height: 1.4;">
+            <p>Wikipedia was launched on January 15, 2001.</p>
+            <p>It's available in over 300 languages.</p>
+            <p>The English version alone has over 6.7 million articles.</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-start comparison when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    startComparison();
+});
+
+function startComparison() {
+    fetch('/perform_comparison')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error occurred'));
+                window.location.href = '/';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during comparison. Please try again.');
+            window.location.href = '/';
+        });
+}
+</script>
+{% endblock %}
