@@ -1,0 +1,9 @@
+docx
+email-validator
+flask
+flask-sqlalchemy
+gunicorn
+openai
+psycopg2-binary
+python-docx
+requests

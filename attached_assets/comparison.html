@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Comparison Result - {{ params.article_title }} - Wiki Truth{% endblock %}
+
+{% block content %}
+<div class="comparison-content">
+    <!-- Header with article info -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 20px;">
+        <div>
+            <h1>Comparison Result</h1>
+            <div style="color: #666; font-size: 14px; line-height: 1.5;">
+                <div><strong>Article:</strong> {{ params.article_title }}</div>
+                <div><strong>Languages compared:</strong> {{ params.languages|join(', ') }}</div>
+                <div><strong>Output language:</strong> {{ params.output_language }}</div>
+                <div><strong>Mode:</strong> {{ params.mode|title }}</div>
+            </div>
+        </div>
+        
+        
+        <!-- Action buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('export_docx') }}" class="btn btn-primary" target="_blank">
+                📄 Download as Word Document
+            </a>
+            <button id="copy-text-btn" class="btn btn-secondary" onclick="copyToClipboard()">
+                📋 Copy Text
+            </button>
+        </div>
+    </div>
+
+    <!-- Comparison result -->
+    <div class="comparison-result">
+        {{ result|replace('\n', '<br>')|safe }}
+    </div>
+
+    <!-- templates/comparison_result.html -->
+    <!doctype html>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body>
+    <article class="prose mx-auto">
+        {{ html|safe }}
+    </article>
+    <a href="{{ url_for('index') }}">← новый запрос</a>
+    </body>
+    </html>
+
+
+    <!-- Share section -->
+    <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border: 1px solid #dee2e6;">
+        <h2 style="margin-top: 0;">Share This Comparison</h2>
+        <p style="color: #666; margin-bottom: 15px;">
+            Share your findings with others on social media or copy the text for your own use:
+        </p>
+        
+        <div class="share-buttons">
+            <button class="btn-share" data-platform="twitter">
+                🐦 Share on X (Twitter)
+            </button>
+            <button class="btn-share" data-platform="linkedin">
+                💼 Share on LinkedIn
+            </button>
+            <button class="btn-share" data-platform="telegram">
+                ✈️ Share on Telegram
+            </button>
+            <button class="btn-share" data-platform="whatsapp">
+                💬 Share on WhatsApp
+            </button>
+            <button class="btn-share" data-platform="reddit">
+                🔴 Share on Reddit
+            </button>
+            <button class="btn-share" data-platform="copy">
+                📋 Copy Link + Text
+            </button>
+        </div>
+        
+        <div style="margin-top: 15px; font-size: 12px; color: #666;">
+            <strong>Note:</strong> Shared content includes a summary of the comparison and a link back to this page.
+        </div>
+    </div>
+
+    <!-- Related actions -->
+    <div style="margin-top: 30px; padding: 20px; background-color: #fdfdfd; border: 1px solid #eee;">
+        <h2 style="margin-top: 0;">What's Next?</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+                <h3 style="font-size: 16px; color: #0645ad; margin-bottom: 8px;">Try Another Article</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                    Compare a different Wikipedia article across languages.
+                </p>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary" style="font-size: 13px;">
+                    New Search
+                </a>
+            </div>
+            
+            <div>
+                <h3 style="font-size: 16px; color: #0645ad; margin-bottom: 8px;">Different Mode</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                    {% if params.mode == 'normal' %}
+                        Try the funny mode for a humorous take on the differences.
+                    {% else %}
+                        Try the normal mode for a detailed analytical comparison.
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('article_selection', language=params.base_language, title=params.article_title) }}" class="btn btn-secondary" style="font-size: 13px;">
+                    Compare Again
+                </a>
+            </div>
+            
+            <div>
+                <h3 style="font-size: 16px; color: #0645ad; margin-bottom: 8px;">More Languages</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                    Include additional language versions in your comparison.
+                </p>
+                <a href="{{ url_for('article_selection', language=params.base_language, title=params.article_title) }}" class="btn btn-secondary" style="font-size: 13px;">
+                    Add Languages
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div style="margin-top: 30px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-left: 4px solid #fdcb6e;">
+        <h3 style="margin-top: 0; color: #856404; font-size: 16px;">Important Disclaimer</h3>
+        <p style="color: #856404; font-size: 14px; line-height: 1.5; margin: 0;">
+            <strong>This comparison was generated by artificial intelligence (GPT-4) and should be used for educational and informational purposes only.</strong> 
+            While we strive for accuracy, AI-generated content may contain errors or biases. We encourage you to:
+        </p>
+        <ul style="color: #856404; font-size: 14px; margin: 10px 0 0 20px;">
+            <li>Verify important information through multiple sources</li>
+            <li>Consult the original Wikipedia articles for detailed information</li>
+            <li>Approach all content with critical thinking</li>
+            <li>Consider that Wikipedia articles may themselves contain biases or inaccuracies</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+    <div class="sidebar-section">
+        <h3>Quick Actions</h3>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px;">
+            <li style="margin-bottom: 8px;">
+                <a href="{{ url_for('export_docx') }}" target="_blank">📄 Download Document</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+                <a href="#" onclick="copyToClipboard(); return false;">📋 Copy Text</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+                <a href="{{ url_for('index') }}">🔍 New Search</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+                <a href="{{ url_for('article_selection', language=params.base_language, title=params.article_title) }}">🔄 Compare Again</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="sidebar-section" style="margin-top: 20px;">
+        <h3>Comparison Details</h3>
+        <div style="font-size: 12px; color: #666; line-height: 1.4;">
+            <div style="margin-bottom: 5px;">
+                <strong>Article:</strong><br>{{ params.article_title }}
+            </div>
+            <div style="margin-bottom: 5px;">
+                <strong>Languages:</strong><br>{{ params.languages|join(', ') }}
+            </div>
+            <div style="margin-bottom: 5px;">
+                <strong>Output:</strong><br>{{ params.output_language }}
+            </div>
+            <div>
+                <strong>Mode:</strong><br>{{ params.mode|title }}
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-section" style="margin-top: 20px;">
+        <h3>Share Stats</h3>
+        <div style="font-size: 12px; color: #666;">
+            Character count: <span id="char-count">{{ result|length }}</span><br>
+            Word count: <span id="word-count">{{ result.split()|length }}</span><br>
+            Languages: {{ params.languages|length }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Update share button text based on success
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('btn-share')) {
+        const originalText = e.target.textContent;
+        e.target.textContent = 'Sharing...';
+        
+        setTimeout(() => {
+            e.target.textContent = originalText;
+        }, 2000);
+    }
+});
+
+// Add smooth scrolling to top after actions
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Auto-copy functionality
+function copyToClipboard() {
+    // This function is handled by the main app.js file
+    return false;
+}
+</script>
+{% endblock %}
