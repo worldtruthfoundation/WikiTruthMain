@@ -1,6 +1,7 @@
 import os
 import logging
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file
+from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -14,6 +15,7 @@ from docx.shared import Inches
 from wikipedia_api import WikipediaAPI
 from openai_service import OpenAIService
 
+
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -22,10 +24,16 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
+
+
 # Create the app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+app.config['SESSION_TYPE'] = 'filesystem'  # хранить сессии на диске (можно также 'redis', если захочешь)
+Session(app)
+
 
 # Configure the database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///wikitruth.db")
@@ -99,37 +107,35 @@ def article_selection(language, title):
         logging.error(f"Error in article_selection: {e}")
         flash('Error loading article information.', 'error')
         return redirect(url_for('index'))
-
 @app.route('/compare', methods=['POST'])
 def compare_articles():
-    """Start the comparison process"""
     try:
-        # Get form data
+        # Очистить предыдущий результат сравнения (ТОЛЬКО ЗДЕСЬ)
+        session.pop('comparison_result', None)
+
+        # Получить данные формы
         languages = request.form.getlist('languages')
         output_language = request.form.get('output_language', 'en')
         mode = request.form.get('mode', 'normal')
-        
-        # Validation
+
         if len(languages) < 2:
             flash('Please select at least 2 languages for comparison.', 'error')
-            return redirect(request.referrer)
-        
+            return redirect(request.referrer or url_for('index'))
         if len(languages) > 5:
             flash('Please select no more than 5 languages for comparison.', 'error')
-            return redirect(request.referrer)
-        
-        # Get the article title from the referrer URL
-        referer = request.referrer
+            return redirect(request.referrer or url_for('index'))
+
+        referer = request.referrer or ''
+        base_language, article_title = None, None
         if '/article/' in referer:
+            from urllib.parse import unquote
             parts = referer.split('/article/')[1].split('/')
             base_language = parts[0]
-            from urllib.parse import unquote
             article_title = unquote('/'.join(parts[1:]))
         else:
             flash('Invalid article reference.', 'error')
             return redirect(url_for('index'))
-        
-        # Store comparison parameters in session
+
         session['comparison_params'] = {
             'languages': languages,
             'output_language': output_language,
@@ -138,65 +144,49 @@ def compare_articles():
             'article_title': article_title,
             'timestamp': datetime.now().isoformat()
         }
-        
-        # Show loading page
+        session.modified = True
+
         return render_template('loading.html')
-    
     except Exception as e:
         logging.error(f"Error starting comparison: {e}")
         flash('Error starting comparison process.', 'error')
         return redirect(url_for('index'))
 
+
 @app.route('/perform_comparison')
 def perform_comparison():
-    """AJAX endpoint to perform the actual comparison"""
+    """
+    AJAX endpoint to perform the actual comparison.
+    """
     try:
         params = session.get('comparison_params')
         if not params:
             return jsonify({'error': 'No comparison parameters found'}), 400
-        
-        # Get language versions for the selected languages
+
         language_versions = wiki_api.get_language_links(params['article_title'], params['base_language'])
-        
-        # Build article requests
-        article_requests = []
-        for lang in params['languages']:
-            # Find the title for this language
-            title = params['article_title']  # Default to original title
-            for version in language_versions:
-                if version['lang'] == lang:
-                    title = version['title']
-                    break
-            
-            article_requests.append({
-                'language': lang,
-                'title': title
-            })
-        
-        # Fetch articles in parallel
+        language_title_map = {ver['lang']: ver['title'] for ver in language_versions}
+        article_requests = [
+            {'language': lang, 'title': language_title_map.get(lang, params['article_title'])}
+            for lang in params['languages']
+        ]
         articles = wiki_api.fetch_articles_parallel(article_requests)
-        
+
         if len(articles) < 2:
             return jsonify({'error': 'Could not fetch enough articles for comparison'}), 400
-        
-        # Perform AI comparison
+
         comparison_result = openai_service.compare_articles(
-            articles,
-            params['output_language'],
-            params['mode']
+            articles, params['output_language'], params['mode']
         )
-        
-        # Store result in session
-        session['comparison_result'] = {
-            'result': comparison_result,
-            'params': params
-        }
-        
+        session['comparison_result'] = {'result': comparison_result, 'params': params}
+        session.modified = True
+
         return jsonify({'success': True, 'redirect': url_for('comparison_result')})
-    
+
     except Exception as e:
         logging.error(f"Error performing comparison: {e}")
+        session.modified = True
         return jsonify({'error': f'Comparison failed: {str(e)}'}), 500
+
 
 @app.route('/result')
 def comparison_result():

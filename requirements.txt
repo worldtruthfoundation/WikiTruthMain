@@ -8,5 +8,5 @@ psycopg2-binary
 email-validator
 docx
 flask_sqlalchemy
-json
-threading
+Flask-Session
+
