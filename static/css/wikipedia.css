@@ -29,6 +29,15 @@ body {
     font-size: 14px;
 }
 
+/* static/css/wikipedia.css  (или любой твой файл стилей) */
+.brand-name {
+  font-family: "Linux Libertine", "Times New Roman", serif;
+  font-weight: 700;          /* жирный, как у Wikipedia */
+  font-size: 1.75rem;        /* подгони под дизайн */
+  letter-spacing: .5px;      /* лёгкий трекинг = опрятнее */
+}
+
+
 /* Wikipedia Header */
 .wikipedia-header {
     background-color: hsl(var(--card));
@@ -635,6 +644,25 @@ a:visited {
 * {
     transition: border-color 0.2s, box-shadow 0.2s;
 }
+
+.btn-outline-primary{
+  background-color: transparent;
+  color: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+}
+.btn-outline-primary:hover{
+  background-color: hsl(var(--primary));
+  color:#fff;
+}
+
+
+.share-icon{
+  width:1.1rem;
+  height:1.1rem;
+  vertical-align:-0.125em;
+  margin-right:4px;
+}
+
 
 /* Print styles */
 @media print {

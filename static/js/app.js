@@ -224,12 +224,12 @@ function setComparisonMode(mode) {
 
 // Share functionality
 function initializeShareButtons() {
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('btn-share')) {
-            const platform = e.target.dataset.platform;
-            shareToSocial(platform);
-        }
-    });
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.share-btn');   // ← ищем кнопку
+    if (!btn) return;                             // мимо — выходим
+    const platform = btn.dataset.platform;
+    WikiTruth.shareOn(platform);                  // или shareToSocial(platform);
+  });
 }
 
 function shareToSocial(platform) {
