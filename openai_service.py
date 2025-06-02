@@ -21,23 +21,41 @@ class OpenAIService:
                 article_summaries.append(summary)
             
             # Create the comparison prompt
-            if mode == 'funny':
+            if mode == 'bio':
+                system_prompt = self._get_biography_mode_prompt(output_language)
+            elif mode == 'funny':
                 system_prompt = self._get_funny_mode_prompt(output_language)
             else:
                 system_prompt = self._get_normal_mode_prompt(output_language)
+
             
             user_prompt = f"""Please compare these Wikipedia articles about the same topic across different languages:
 
 {chr(10).join(article_summaries)}
+Your task is to analyze them deeply and produce a detailed, structured, and thorough comparison. Do NOT summarize. Instead, identify and describe every factual difference, contradiction, addition, and omission.
 
-Focus on:
-1. Factual differences and contradictions
-2. Cultural perspectives and biases
-3. Different emphasis or coverage areas
-4. Unique information in each version
-5. Notable omissions or additions
+For each article, pay close attention to:
+- Specific dates, names, places, figures, numbers
+- Contradictory claims or missing details
+- Regional or ideological framing of the topic
+- Emphasized vs. downplayed aspects
+- Sections or facts present only in one version
+- Organization or structural formatting
 
-Please provide your analysis in {self._get_language_name(output_language)}."""
+Your analysis must:
+- Mention **which language version** contains which fact
+- Be written in {self._get_language_name(output_language)}
+- Include **explicit examples** from the text
+- Cover **each of the following** sections:
+  1. Executive Summary
+  2. Factual Differences (quote or paraphrase specific facts)
+  3. Cultural Perspectives
+  4. Coverage Differences
+  5. Structural Differences
+  6. Unique Insights
+  7. Meta-analysis Conclusion
+
+Your tone should be intelligent, analytical, and descriptive — like a comparative study in a top academic journal. Do not omit minor differences — **list all factual variations explicitly**."""
             
             # the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
             # do not change this unless explicitly requested by the user
@@ -64,12 +82,22 @@ Please provide your analysis in {self._get_language_name(output_language)}."""
 
 Provide a comprehensive, structured analysis in {lang_name} that includes:
 
-1. **Executive Summary**: Brief overview of the most significant differences
-2. **Factual Differences**: Specific contradictions, different dates, numbers, or claims
-3. **Cultural Perspectives**: How different regions present the topic differently
-4. **Coverage Variations**: What each version emphasizes or omits
-5. **Structural Differences**: How the information is organized differently
-6. **Unique Insights**: Information only found in specific language versions
+The goal is not to summarize, but to analyze and **highlight all factual, structural, and cultural differences** among the versions. Imagine you are writing a new, meta-encyclopedic article called "**How Wikipedia Talks About title of givven article Around the World**".
+
+Your output should follow this structure:
+
+1. **Executive Summary** — Key findings in 1-2 paragraphs.
+2. **Factual Differences** — Contradictions or variances in dates, events, names, numbers.
+3. **Cultural Perspectives** — Differences in tone, emphasis, point of view, or interpretation based on regional/national context.
+4. **Coverage Differences** — What sections or facts are present in one language and missing in others.
+5. **Structural Differences** — Different chapter structures or layout between versions.
+6. **Unique Insights** — Rare facts or viewpoints only found in a specific version.
+7. **Meta-analysis Conclusion** — What do these differences say about how different cultures understand this topic?
+
+Your analisis should be very discriptive and lool like a new article. FIND ALL DIFFERENCES AND SHOW THEM
+
+Style: Write fluidly and engagingly. Like a feature article in a scholarly magazine. Avoid dry bullet points. Use comparisons and rich language to make the analysis insightful and enjoyable to read.
+
 
 Be objective, scholarly, and detailed in your analysis. Highlight both similarities and differences. When noting differences, be specific about which language version contains what information."""
     
@@ -88,6 +116,61 @@ Write your analysis in {lang_name} with humor, but maintain these guidelines:
 - Use a conversational, entertaining tone
 
 Think of yourself as a comedian doing cultural commentary, but one who actually knows their stuff and wants to teach people something while making them laugh."""
+    
+    def _get_biography_mode_prompt(self, output_language):
+        """Get system prompt for biography comparison mode"""
+        lang_name = self._get_language_name(output_language)
+        return f"""You are an expert analyst in biography comparison and geopolitical profiling. Your task is to compare Wikipedia biographies across languages and evaluate all details from a security and eligibility standpoint.
+
+Write the analysis in {lang_name} and follow the structure below. List **all factual differences and contradictions**. Be comprehensive and precise.
+
+Use the following structure:
+
+1. **Basic Information**
+   - Date and place of birth
+   - Ethnic origin, social status of family
+   - Parents (names, professions, cultural context)
+   - Spouse and their origin (including maiden name)
+
+2. **Education**
+   - School/lyceum (especially elite or special)
+   - University, faculty, specialization
+   - Notable classmates
+   - Academic achievements
+
+3. **Career**
+   - Early positions (esp. in national or regional structures)
+   - Career progression: high offices, international roles
+   - Academic/advisory positions (e.g. rector advisor)
+
+4. **Social and Political Ties**
+   - Politically significant family ties
+   - Dual citizenship or foreign relations
+   - Religious or ethnic identity (e.g., by Halakha)
+
+5. **Security Risk Assessment**
+   - Presence of "personnel filters":
+     - Spouse’s citizenship from countries with no diplomatic ties
+     - National-cultural issues
+     - Conflicts with national security policies
+   - Potential risks: defection, betrayal, loss of trust
+
+6. **Public Statements and Views**
+   - Quotes, ideological positions, speeches
+   - Media presence, scandals or controversies
+
+7. **Public Perception**
+   - How media/society views them
+   - Trust rating, positive/negative contexts
+
+8. **Final Assessment**
+   - Suitability for public or governmental roles
+   - Risk level: security and reputation
+   - Conclusion: Fit/Unfit with clear reasoning
+
+Provide **explicit references** to which article/language each fact or contradiction came from. Be analytical, not speculative. This is not a summary — it’s a comparative dossier."""
+
+
     
     def _get_language_name(self, code):
         """Get full language name from code"""

@@ -9,4 +9,5 @@ email-validator
 docx
 flask_sqlalchemy
 Flask-Session
+markdown
 

@@ -29,7 +29,7 @@
 
     <!-- Comparison result -->
     <div class="comparison-result">
-        {{ result|replace('\n', '<br>')|safe }}
+        {{ result | markdown_to_html }}
     </div>
 
     <!-- Share section -->

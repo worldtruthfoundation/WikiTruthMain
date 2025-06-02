@@ -209,18 +209,27 @@ function setComparisonMode(mode) {
     if (modeInput) {
         modeInput.value = mode;
     }
-    
-    // Update button states
+
     modeButtons.forEach(btn => {
-        if (btn.onclick.toString().includes(mode)) {
-            btn.classList.remove('btn-secondary');
-            btn.classList.add('btn-primary', 'active');
+        const btnMode = btn.getAttribute('onclick').match(/'(.+?)'/)?.[1];
+        if (btnMode === mode) {
+            btn.classList.add('active');
+            if (btnMode === 'normal') {
+                btn.classList.remove('btn-secondary', 'btn-success');
+                btn.classList.add('btn-primary');
+            } else if (btnMode === 'funny') {
+                btn.classList.remove('btn-primary', 'btn-success');
+                btn.classList.add('btn-secondary');
+            } else if (btnMode === 'bio') {
+                btn.classList.remove('btn-primary', 'btn-secondary');
+                btn.classList.add('btn-success');
+            }
         } else {
-            btn.classList.remove('btn-primary', 'active');
-            btn.classList.add('btn-secondary');
+            btn.classList.remove('btn-primary', 'btn-secondary', 'btn-success', 'active');
         }
     });
 }
+
 
 // Share functionality
 function initializeShareButtons() {

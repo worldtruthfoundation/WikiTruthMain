@@ -11,7 +11,8 @@ import threading
 import io
 from docx import Document
 from docx.shared import Inches
-
+from markupsafe import Markup
+import markdown
 from wikipedia_api import WikipediaAPI
 from openai_service import OpenAIService
 
@@ -263,6 +264,11 @@ def export_docx():
         logging.error(f"Error exporting document: {e}")
         flash('Error generating document export.', 'error')
         return redirect(url_for('comparison_result'))
+
+@app.template_filter('markdown_to_html')
+def markdown_to_html(text):
+    return Markup(markdown.markdown(text, extensions=['extra', 'sane_lists']))
+
 
 @app.errorhandler(404)
 def not_found_error(error):
