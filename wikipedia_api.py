@@ -3,6 +3,7 @@ import json
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import quote
+import os
 
 class WikipediaAPI:
     """Handles all Wikipedia API interactions"""
@@ -76,7 +77,13 @@ class WikipediaAPI:
     def search_articles(self, query, language='en', limit=10):
         """Search for Wikipedia articles and return suggestions"""
         try:
-            url = self.api_url.format(lang=language)
+            # Определяем, запущено ли на Render (через переменную среды)
+            is_render = os.environ.get("RENDER", False)
+
+            if is_render:
+                url = f"https://corsproxy.io/?https://{language}.wikipedia.org/w/api.php"
+            else:
+                url = f"https://{language}.wikipedia.org/w/api.php"
             params = {
                 'action': 'opensearch',
                 'search': query,
