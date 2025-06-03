@@ -78,13 +78,8 @@ class WikipediaAPI:
         """Search for Wikipedia articles and return suggestions"""
         try:
             # Определяем, запущено ли на Render (через переменную среды)
-            is_render = os.environ.get("RENDER", False)
+            url = f"https://{language}.wikipedia.org/w/api.php"
 
-            if is_render:
-                proxy = f"https://api.allorigins.win/raw?url="
-                url = proxy + f"https://{language}.wikipedia.org/w/api.php"
-            else:
-                url = f"https://{language}.wikipedia.org/w/api.php"
             params = {
                 'action': 'opensearch',
                 'search': query,
