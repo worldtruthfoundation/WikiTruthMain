@@ -81,7 +81,8 @@ class WikipediaAPI:
             is_render = os.environ.get("RENDER", False)
 
             if is_render:
-                url = f"https://corsproxy.io/?https://{language}.wikipedia.org/w/api.php"
+                proxy = f"https://api.allorigins.win/raw?url="
+                url = proxy + f"https://{language}.wikipedia.org/w/api.php"
             else:
                 url = f"https://{language}.wikipedia.org/w/api.php"
             params = {
