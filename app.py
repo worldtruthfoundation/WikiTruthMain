@@ -270,6 +270,7 @@ def markdown_to_html(text):
     return Markup(markdown.markdown(text, extensions=['extra', 'sane_lists']))
 
 
+
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('base.html'), 404
