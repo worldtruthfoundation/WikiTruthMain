@@ -1,26 +1,43 @@
-import os
-import logging
+import os, json, logging, tempfile, time
 from openai import OpenAI
+from docx import Document               # pip install python-docx
+
+# ---------- helper вне класса ----------
+def _make_docx(articles: dict) -> str:
+    """Склеивает все статьи в один .docx и возвращает путь к файлу"""
+    doc = Document()
+    for lang, art in articles.items():
+        doc.add_heading(f"{art['title']}  ({lang})", level=1)
+        doc.add_paragraph(art["content"])
+        doc.add_page_break()
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".docx")
+    doc.save(tmp.name)
+    return tmp.name
+
 
 class OpenAIService:
     """Handles OpenAI API interactions for article comparison"""
-    
+
     def __init__(self):
         self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-    
+
+    # ←← НЕТ дополнительных отступов
     def compare_articles(self, articles, output_language='en', mode='normal'):
-        """Compare Wikipedia articles using GPT-4"""
+        """
+        Сравнивает статьи через Assistants-API с Retrieval-tool.
+        Нужен ассистент с включённым Retrieval и его ID в GPT_ASSISTANT_ID.
+        """
         try:
-            # Prepare article summaries for comparison
-            article_summaries = []
-            for lang, article in articles.items():
-                summary = f"**{article['language']} ({lang})**: {article['title']}\n"
-                # Limit content to avoid token limits
-                content = article['content'][:3000] if len(article['content']) > 3000 else article['content']
-                summary += content
-                article_summaries.append(summary)
-            
-            # Create the comparison prompt
+            # 1) DOCX из статей
+            docx_path = _make_docx(articles)
+
+            # 2) заливаем файл
+            file_id = self.client.files.create(
+                file=open(docx_path, "rb"),
+                purpose="assistants"
+            ).id
+
+            # 3) system-prompt
             if mode == 'bio':
                 system_prompt = self._get_biography_mode_prompt(output_language)
             elif mode == 'funny':
@@ -28,52 +45,50 @@ class OpenAIService:
             else:
                 system_prompt = self._get_normal_mode_prompt(output_language)
 
-            
-            user_prompt = f"""Please compare these Wikipedia articles about the same topic across different languages:
-
-{chr(10).join(article_summaries)}
-Your task is to analyze them deeply and produce a detailed, structured, and thorough comparison. Do NOT summarize. Instead, identify and describe every factual difference, contradiction, addition, and omission.
-
-For each article, pay close attention to:
-- Specific dates, names, places, figures, numbers
-- Contradictory claims or missing details
-- Regional or ideological framing of the topic
-- Emphasized vs. downplayed aspects
-- Sections or facts present only in one version
-- Organization or structural formatting
-
-Your analysis must:
-- Mention **which language version** contains which fact
-- Be written in {self._get_language_name(output_language)}
-- Include **explicit examples** from the text
-- Cover **each of the following** sections:
-  1. Executive Summary
-  2. Factual Differences (quote or paraphrase specific facts)
-  3. Cultural Perspectives
-  4. Coverage Differences
-  5. Structural Differences
-  6. Unique Insights
-  7. Meta-analysis Conclusion
-
-Your tone should be intelligent, analytical, and descriptive — like a comparative study in a top academic journal. Do not omit minor differences — **list all factual variations explicitly**."""
-            
-            # the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
-            # do not change this unless explicitly requested by the user
-            response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                max_tokens=3000,
-                temperature=0.7 if mode == 'funny' else 0.3
+            # 4) thread + сообщение с файлом
+            thread = self.client.beta.threads.create()
+            self.client.beta.threads.messages.create(
+                thread_id=thread.id,
+                role="user",
+                content=("‼️ The attached DOCX contains full Wikipedia articles "
+                        f"in several languages. Compare them and write the analysis "
+                        f"in {output_language}."),
+                attachments=[                       # ← вот так прикрепляем файл
+                    {
+                        "file_id": file_id,
+                        "tools": [{"type": "file_search"}] 
+                    }
+                ]
             )
-            
-            return response.choices[0].message.content
-        
+
+            # 5) запускаем ассистента
+            run = self.client.beta.threads.runs.create(
+                thread_id=thread.id,
+                assistant_id=os.getenv("GPT_ASSISTANT_ID"),
+                tools=[{"type": "file_search"}],
+                instructions=system_prompt
+            )
+
+            # 6) ждём
+            while True:
+                run = self.client.beta.threads.runs.retrieve(
+                    thread_id=thread.id, run_id=run.id)
+                if run.status == "completed":
+                    break
+                if run.status == "failed":
+                    raise RuntimeError(run.last_error)
+                time.sleep(2)
+
+            # 7) ответ ассистента
+            msgs = self.client.beta.threads.messages.list(thread_id=thread.id)
+            return msgs.data[0].content[0].text.value
+
         except Exception as e:
             logging.error(f"Error in OpenAI comparison: {e}")
             raise Exception(f"AI comparison failed: {str(e)}")
+
+
+
     
     def _get_normal_mode_prompt(self, output_language):
         """Get system prompt for normal comparison mode"""
@@ -99,7 +114,9 @@ Your analisis should be very discriptive and lool like a new article. FIND ALL D
 Style: Write fluidly and engagingly. Like a feature article in a scholarly magazine. Avoid dry bullet points. Use comparisons and rich language to make the analysis insightful and enjoyable to read.
 
 
-Be objective, scholarly, and detailed in your analysis. Highlight both similarities and differences. When noting differences, be specific about which language version contains what information."""
+Be objective, scholarly, and detailed in your analysis. Highlight both similarities and differences. When noting differences, be specific about which language version contains what information. 
+
+Deteils level 10 of 10"""
     
     def _get_funny_mode_prompt(self, output_language):
         """Get system prompt for funny comparison mode"""
@@ -168,7 +185,9 @@ Use the following structure:
    - Risk level: security and reputation
    - Conclusion: Fit/Unfit with clear reasoning
 
-Provide **explicit references** to which article/language each fact or contradiction came from. Be analytical, not speculative. This is not a summary — it’s a comparative dossier."""
+Provide **explicit references** to which article/language each fact or contradiction came from. Be analytical, not speculative. This is not a summary — it’s a comparative dossier.
+
+Deteils level 10 of 10"""
 
 
     

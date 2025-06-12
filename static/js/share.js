@@ -15,6 +15,7 @@
    */
   function shareOn(platform, opts = {}) {
     const { text, url, modeTitle } = { ...defaults, ...opts };
+    if (platform === 'x') platform = 'twitter';
     switch (platform) {
 
       case 'twitter':

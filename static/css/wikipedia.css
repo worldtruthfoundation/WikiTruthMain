@@ -539,6 +539,19 @@ a:visited {
     border-color: hsl(0 94% 85%); /* #FFB3B3 */
 }
 
+/* CSS: фиксированная тонкая полоска */
+#scrollProgress{
+  position:fixed;
+  top:0; left:0;
+  width:0;                 /* будем расширять JS-ом */
+  height:8px;
+  background:#00d0ff;      /* цвет можешь заменить */
+  z-index:1000;
+  transition:width .15s linear;
+}
+body{scroll-behavior:smooth;} /* бонус: плавный скролл по ссылкам */
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .wikipedia-content {

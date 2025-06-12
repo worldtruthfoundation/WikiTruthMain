@@ -1,7 +1,7 @@
 flask
 flask-sqlalchemy
 gunicorn
-openai
+openai>=1.25.0
 requests
 python-docx
 psycopg2-binary
@@ -10,4 +10,5 @@ docx
 flask_sqlalchemy
 Flask-Session
 markdown
-
+tiktoken>=0.7.0
+python-docx>=1.0.0

@@ -506,4 +506,19 @@ document.addEventListener('DOMContentLoaded', function() {
         page: window.location.pathname,
         title: document.title
     });
+
+// JS: обновляем ширину при каждом scroll/resize
+(function(){
+  const bar = document.getElementById('scrollProgress');
+  const update = () => {
+    const sh = document.documentElement.scrollHeight   - innerHeight;
+    const sc = document.documentElement.scrollTop      || document.body.scrollTop;
+    const pct = sh ? (sc / sh) * 100 : 0;
+    bar.style.width = pct + '%';
+  };
+  addEventListener('scroll',  update, {passive:true});
+  addEventListener('resize',  update);
+  update();                 
+})();
+
 });
